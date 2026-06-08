@@ -293,8 +293,6 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
         Offset.zero & overlay.size,
       ),
       items: menuItems,
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     );
 
     if (selected == null) {
