@@ -1,6 +1,6 @@
 name: ios_adaptive_context_menu
-description: Flutter plugin for adaptive single-tap context menus on iOS and Android.
-version: 0.1.4
+description: Flutter plugin for adaptive single-tap context menus on iOS, Android, web, and desktop.
+version: 0.1.5
 homepage: https://github.com/shahmeer1124/ios_adaptive_context_menu
 repository: https://github.com/shahmeer1124/ios_adaptive_context_menu
 issue_tracker: https://github.com/shahmeer1124/ios_adaptive_context_menu/issues

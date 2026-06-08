@@ -1,3 +1,9 @@
+## 0.1.5
+
+- Added Flutter `IconData` support for fallback menu icons.
+- Added Flutter popup fallback behavior for web and desktop instead of returning the child unchanged.
+- Removed the Android fallback requirement that every action provide an SVG `iconAssetPath`.
+
 ## 0.1.4
 
 - Added README notes explaining the temporary native anchor approach that avoids persistent UIKit embedding issues in Flutter layouts.

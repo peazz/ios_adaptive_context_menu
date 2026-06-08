@@ -1,4 +1,4 @@
-/// Adaptive single-tap context menu widgets and models for iOS and Android.
+/// Adaptive single-tap context menu widgets and models for iOS and Flutter fallback platforms.
 library ios_single_tap_context_menu;
 
 import 'dart:math' as math;
@@ -36,12 +36,16 @@ class IosContextMenuSubmenu extends IosContextMenuItem {
   const IosContextMenuSubmenu({
     required this.title,
     required this.children,
+    this.icon,
     this.iconSystemName,
     this.iconAssetPath,
   });
 
   /// Label shown for this submenu.
   final String title;
+
+  /// Flutter icon used by fallback menus on Android, web, and desktop.
+  final IconData? icon;
 
   /// SF Symbol name used on iOS when provided.
   final String? iconSystemName;
@@ -59,6 +63,7 @@ class IosContextMenuSubmenu extends IosContextMenuItem {
     }
     return other is IosContextMenuSubmenu &&
         other.title == title &&
+        other.icon == icon &&
         other.iconSystemName == iconSystemName &&
         other.iconAssetPath == iconAssetPath &&
         listEquals(other.children, children);
@@ -67,6 +72,7 @@ class IosContextMenuSubmenu extends IosContextMenuItem {
   @override
   int get hashCode => Object.hash(
         title,
+        icon,
         iconSystemName,
         iconAssetPath,
         Object.hashAll(children),
@@ -80,6 +86,7 @@ class IosContextMenuAction extends IosContextMenuItem {
   const IosContextMenuAction({
     required this.id,
     required this.title,
+    this.icon,
     this.iconSystemName,
     this.iconAssetPath,
     this.showTrailingCheckmark = false,
@@ -92,6 +99,9 @@ class IosContextMenuAction extends IosContextMenuItem {
 
   /// Label shown to the user.
   final String title;
+
+  /// Flutter icon used by fallback menus on Android, web, and desktop.
+  final IconData? icon;
 
   /// SF Symbol name used on iOS when provided.
   final String? iconSystemName;
@@ -116,6 +126,7 @@ class IosContextMenuAction extends IosContextMenuItem {
     return other is IosContextMenuAction &&
         other.id == id &&
         other.title == title &&
+        other.icon == icon &&
         other.iconSystemName == iconSystemName &&
         other.iconAssetPath == iconAssetPath &&
         other.showTrailingCheckmark == showTrailingCheckmark &&
@@ -127,6 +138,7 @@ class IosContextMenuAction extends IosContextMenuItem {
   int get hashCode => Object.hash(
         id,
         title,
+        icon,
         iconSystemName,
         iconAssetPath,
         showTrailingCheckmark,
@@ -137,8 +149,8 @@ class IosContextMenuAction extends IosContextMenuItem {
 
 /// Single-tap adaptive context menu widget.
 ///
-/// On iOS it presents native `UIMenu`. On Android it shows a Material popup
-/// menu while keeping the same action model.
+/// On iOS it presents native `UIMenu`. On Android, web, and desktop it shows
+/// a Material popup menu while keeping the same action model.
 class IosSingleTapContextMenu extends StatefulWidget {
   /// Creates a single-tap context menu host.
   const IosSingleTapContextMenu({
@@ -164,7 +176,7 @@ class IosSingleTapContextMenu extends StatefulWidget {
 
 class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   static const int _targetIconPx = 36;
-  static const double _androidMenuMinWidth = 202;
+  static const double _fallbackMenuMinWidth = 202;
   static const MethodChannel _iosHostChannel =
       MethodChannel('ios_adaptive_context_menu/methods');
 
@@ -173,9 +185,6 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   late final MethodChannel _iosInstanceChannel;
 
   bool get _isIos => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-
-  bool get _isAndroid =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   @override
   void initState() {
@@ -209,11 +218,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
       return _buildIosHost();
     }
 
-    if (_isAndroid) {
-      return _buildAndroidHost();
-    }
-
-    return widget.child;
+    return _buildFlutterFallbackHost();
   }
 
   Widget _buildIosHost() {
@@ -244,18 +249,16 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     await _iosHostChannel.invokeMethod<void>('showMenu', params);
   }
 
-  Widget _buildAndroidHost() {
+  Widget _buildFlutterFallbackHost() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: _showAndroidMenu,
+      onTapDown: _showFlutterFallbackMenu,
       child: widget.child,
     );
   }
 
-  Future<void> _showAndroidMenu(TapDownDetails details) async {
-    _assertAndroidIcons(widget.actions);
-
-    final selectedId = await _showAndroidMenuForItems(
+  Future<void> _showFlutterFallbackMenu(TapDownDetails details) async {
+    final selectedId = await _showFlutterFallbackMenuForItems(
       context: context,
       position: details.globalPosition,
       items: widget.actions,
@@ -266,19 +269,19 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     }
   }
 
-  Future<String?> _showAndroidMenuForItems({
+  Future<String?> _showFlutterFallbackMenuForItems({
     required BuildContext context,
     required Offset position,
     required List<IosContextMenuItem> items,
   }) async {
     final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final menuItems = _buildAndroidPopupEntries(items);
+    final menuItems = _buildFlutterFallbackPopupEntries(items);
 
     if (menuItems.isEmpty) {
       return null;
     }
 
-    final selected = await showMenu<_AndroidMenuResult>(
+    final selected = await showMenu<_FallbackMenuResult>(
       context: context,
       position: RelativeRect.fromRect(
         Rect.fromLTWH(position.dx, position.dy, 1, 1),
@@ -296,19 +299,19 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     return selected.actionId;
   }
 
-  List<PopupMenuEntry<_AndroidMenuResult>> _buildAndroidPopupEntries(
+  List<PopupMenuEntry<_FallbackMenuResult>> _buildFlutterFallbackPopupEntries(
     List<IosContextMenuItem> items,
   ) {
-    final entries = <PopupMenuEntry<_AndroidMenuResult>>[];
+    final entries = <PopupMenuEntry<_FallbackMenuResult>>[];
     final dividerColor = Theme.of(context).dividerColor.withValues(alpha: 0.2);
-    final flatItems = _flattenForAndroid(items);
+    final flatItems = _flattenForFallback(items);
 
     void addDividerIfNeeded() {
-      if (entries.isEmpty || entries.last is _AndroidPopupDivider) {
+      if (entries.isEmpty || entries.last is _FallbackPopupDivider) {
         return;
       }
       entries.add(
-        _AndroidPopupDivider(
+        _FallbackPopupDivider(
           color: dividerColor,
           height: 10,
           thickness: 1,
@@ -325,14 +328,14 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
 
       if (item is IosContextMenuAction) {
         entries.add(
-          PopupMenuItem<_AndroidMenuResult>(
+          PopupMenuItem<_FallbackMenuResult>(
             enabled: item.enabled,
-            value: _AndroidMenuResult.action(item.id),
+            value: _FallbackMenuResult.action(item.id),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: _androidMenuMinWidth),
+              constraints: const BoxConstraints(minWidth: _fallbackMenuMinWidth),
               child: Row(
                 children: [
-                  _buildAndroidMenuIcon(item.iconAssetPath),
+                  _buildFlutterFallbackMenuIcon(item),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -350,18 +353,18 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
       }
     }
 
-    while (entries.isNotEmpty && entries.last is _AndroidPopupDivider) {
+    while (entries.isNotEmpty && entries.last is _FallbackPopupDivider) {
       entries.removeLast();
     }
 
     return entries;
   }
 
-  List<IosContextMenuItem> _flattenForAndroid(List<IosContextMenuItem> items) {
+  List<IosContextMenuItem> _flattenForFallback(List<IosContextMenuItem> items) {
     final result = <IosContextMenuItem>[];
     for (final item in items) {
       if (item is IosContextMenuSubmenu) {
-        result.addAll(_flattenForAndroid(item.children));
+        result.addAll(_flattenForFallback(item.children));
       } else {
         result.add(item);
       }
@@ -369,34 +372,21 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     return result;
   }
 
-  Widget _buildAndroidMenuIcon(String? assetPath) {
-    final safeAsset = assetPath ?? '';
-    return SvgPicture.asset(
-      safeAsset,
-      width: 20,
-      height: 20,
-    );
-  }
-
-  void _assertAndroidIcons(List<IosContextMenuItem> items) {
-    for (final item in items) {
-      if (item is IosContextMenuAction) {
-        if (item.iconAssetPath == null || item.iconAssetPath!.isEmpty) {
-          throw FlutterError(
-            'Android context menu requires iconAssetPath for every action. '
-            'Missing for action id: ${item.id}',
-          );
-        }
-      } else if (item is IosContextMenuSubmenu) {
-        if (item.iconAssetPath == null || item.iconAssetPath!.isEmpty) {
-          throw FlutterError(
-            'Android context menu requires iconAssetPath for every submenu. '
-            'Missing for submenu title: ${item.title}',
-          );
-        }
-        _assertAndroidIcons(item.children);
-      }
+  Widget _buildFlutterFallbackMenuIcon(IosContextMenuAction item) {
+    if (item.icon != null) {
+      return Icon(item.icon, size: 20);
     }
+
+    final assetPath = item.iconAssetPath;
+    if (assetPath != null && assetPath.isNotEmpty) {
+      return SvgPicture.asset(
+        assetPath,
+        width: 20,
+        height: 20,
+      );
+    }
+
+    return const SizedBox(width: 20, height: 20);
   }
 
   Future<Map<String, Object?>> _buildCreationParams() async {
@@ -542,16 +532,16 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
 }
 
 @immutable
-class _AndroidMenuResult {
-  const _AndroidMenuResult._({this.actionId});
+class _FallbackMenuResult {
+  const _FallbackMenuResult._({this.actionId});
 
-  const _AndroidMenuResult.action(String id) : this._(actionId: id);
+  const _FallbackMenuResult.action(String id) : this._(actionId: id);
 
   final String? actionId;
 }
 
-class _AndroidPopupDivider extends PopupMenuEntry<_AndroidMenuResult> {
-  const _AndroidPopupDivider({
+class _FallbackPopupDivider extends PopupMenuEntry<_FallbackMenuResult> {
+  const _FallbackPopupDivider({
     required this.color,
     required this.height,
     required this.thickness,
@@ -566,13 +556,13 @@ class _AndroidPopupDivider extends PopupMenuEntry<_AndroidMenuResult> {
   final double height;
 
   @override
-  bool represents(_AndroidMenuResult? value) => false;
+  bool represents(_FallbackMenuResult? value) => false;
 
   @override
-  State<_AndroidPopupDivider> createState() => _AndroidPopupDividerState();
+  State<_FallbackPopupDivider> createState() => _FallbackPopupDividerState();
 }
 
-class _AndroidPopupDividerState extends State<_AndroidPopupDivider> {
+class _FallbackPopupDividerState extends State<_FallbackPopupDivider> {
   @override
   Widget build(BuildContext context) {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
@@ -585,7 +575,7 @@ class _AndroidPopupDividerState extends State<_AndroidPopupDivider> {
           height: strokeWidth,
           width: double.infinity,
           child: CustomPaint(
-            painter: _AndroidDividerPainter(
+            painter: _FallbackDividerPainter(
               color: widget.color,
               strokeWidth: strokeWidth,
             ),
@@ -596,8 +586,8 @@ class _AndroidPopupDividerState extends State<_AndroidPopupDivider> {
   }
 }
 
-class _AndroidDividerPainter extends CustomPainter {
-  const _AndroidDividerPainter({
+class _FallbackDividerPainter extends CustomPainter {
+  const _FallbackDividerPainter({
     required this.color,
     required this.strokeWidth,
   });
@@ -618,7 +608,7 @@ class _AndroidDividerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _AndroidDividerPainter oldDelegate) {
+  bool shouldRepaint(covariant _FallbackDividerPainter oldDelegate) {
     return oldDelegate.color != color || oldDelegate.strokeWidth != strokeWidth;
   }
 }

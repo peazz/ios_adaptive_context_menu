@@ -31,12 +31,14 @@ class _ContextMenuExamplePageState extends State<ContextMenuExamplePage> {
   List<IosContextMenuItem> get _actions => <IosContextMenuItem>[
         const IosContextMenuSubmenu(
           title: 'Share',
+          icon: Icons.share_outlined,
           iconSystemName: 'square.and.arrow.up',
           iconAssetPath: MediaRes.share,
           children: <IosContextMenuItem>[
             IosContextMenuAction(
               id: 'share_meal',
               title: 'Share meal',
+              icon: Icons.share_outlined,
               iconSystemName: 'square.and.arrow.up',
               iconAssetPath: MediaRes.share,
             ),
@@ -46,6 +48,7 @@ class _ContextMenuExamplePageState extends State<ContextMenuExamplePage> {
         const IosContextMenuAction(
           id: 'saveasrecipe',
           title: 'Save as recipe',
+          icon: Icons.book_outlined,
           iconSystemName: 'book.closed',
           iconAssetPath: MediaRes.share,
         ),
@@ -54,24 +57,28 @@ class _ContextMenuExamplePageState extends State<ContextMenuExamplePage> {
           id: 'clr',
           title: 'Clear meal',
           destructive: true,
+          icon: Icons.delete_outline,
           iconSystemName: 'trash',
           iconAssetPath: MediaRes.share,
         ),
         const IosContextMenuAction(
           id: 'rpt',
           title: 'Repeat meal',
+          icon: Icons.repeat,
           iconSystemName: 'repeat',
           iconAssetPath: MediaRes.share,
         ),
         const IosContextMenuAction(
           id: 'pst',
           title: 'Paste',
+          icon: Icons.content_paste,
           iconSystemName: 'document.on.clipboard',
           iconAssetPath: MediaRes.share,
         ),
         const IosContextMenuAction(
           id: 'cp',
           title: 'Copy',
+          icon: Icons.copy,
           iconSystemName: 'pip',
           iconAssetPath: MediaRes.share,
         ),

@@ -1,14 +1,14 @@
 # ios_adaptive_context_menu
 
-Flutter plugin for showing adaptive single-tap context menus on iOS and Android.
+Flutter plugin for showing adaptive single-tap context menus on iOS, Android, web, and desktop.
 
 ## Features
 
 - Opens the iOS system context menu with a single tap.
-- Opens a Material popup context menu on Android with the same API.
+- Opens a Material popup context menu on Android, web, and desktop with the same API.
 - Supports actions, dividers, and nested submenus.
-- Supports SF Symbols (`iconSystemName`) and SVG asset icons (`iconAssetPath`).
-- Uses a unified action model across iOS and Android.
+- Supports SF Symbols (`iconSystemName`), SVG asset icons (`iconAssetPath`), and Flutter `IconData` fallback icons (`icon`).
+- Uses a unified action model across native iOS and Flutter fallback menus.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ Flutter plugin for showing adaptive single-tap context menus on iOS and Android.
 
 ```yaml
 dependencies:
-  ios_adaptive_context_menu: ^0.1.0
+  ios_adaptive_context_menu: ^0.1.5
 ```
 
 ## Run Example App
@@ -46,12 +46,14 @@ class DemoMenuButton extends StatelessWidget {
         IosContextMenuAction(
           id: 'share',
           title: 'Share',
+          icon: Icons.share_outlined,
           iconSystemName: 'square.and.arrow.up',
         ),
         IosContextMenuDivider(),
         IosContextMenuAction(
           id: 'delete',
           title: 'Delete',
+          icon: Icons.delete_outline,
           iconSystemName: 'trash',
           destructive: true,
         ),
