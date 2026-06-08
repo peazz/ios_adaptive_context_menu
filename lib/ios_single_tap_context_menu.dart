@@ -255,6 +255,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
         renderObject.localToGlobal(Offset.zero) & renderObject.size;
     final params = await _buildCreationParams();
     params['instanceId'] = _instanceId;
+    params['themeBrightness'] = Theme.of(context).brightness.name;
     params['x'] = anchorRect.left;
     params['y'] = anchorRect.top;
     params['width'] = anchorRect.width;

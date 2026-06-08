@@ -69,6 +69,7 @@ public final class IosSingleTapContextMenuPlugin: NSObject, FlutterPlugin {
     button.showsTouchWhenHighlighted = false
     button.adjustsImageWhenHighlighted = false
     button.showsMenuAsPrimaryAction = true
+    button.overrideUserInterfaceStyle = resolvedUserInterfaceStyleFromFlutterTheme(from: dictionary)
     
     if #available(iOS 16.0, *) {
       button.preferredMenuElementOrder = .fixed
@@ -116,6 +117,17 @@ public final class IosSingleTapContextMenuPlugin: NSObject, FlutterPlugin {
 
     let rect = CGRect(x: x, y: y, width: width, height: height).integral
     return rootView.convert(rect, from: nil)
+  }
+
+  private func resolvedUserInterfaceStyleFromFlutterTheme(from args: [String: Any]) -> UIUserInterfaceStyle {
+    switch args["themeBrightness"] as? String {
+    case "light":
+      return .light
+    case "dark":
+      return .dark
+    default:
+      return .unspecified
+    }
   }
 
   private func keyWindow() -> UIWindow? {
