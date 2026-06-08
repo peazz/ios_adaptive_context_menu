@@ -158,6 +158,7 @@ class IosSingleTapContextMenu extends StatefulWidget {
     required this.child,
     required this.actions,
     this.onSelected,
+    this.fallbackMenuMinWidth = 202,
   });
 
   /// Child widget that triggers the menu.
@@ -169,6 +170,11 @@ class IosSingleTapContextMenu extends StatefulWidget {
   /// Callback invoked with selected [IosContextMenuAction.id].
   final ValueChanged<String>? onSelected;
 
+  /// Minimum width for the Flutter fallback popup menu.
+  ///
+  /// Native iOS menus ignore this and size according to UIKit.
+  final double fallbackMenuMinWidth;
+
   @override
   State<IosSingleTapContextMenu> createState() =>
       _IosSingleTapContextMenuState();
@@ -176,7 +182,6 @@ class IosSingleTapContextMenu extends StatefulWidget {
 
 class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   static const int _targetIconPx = 36;
-  static const double _fallbackMenuMinWidth = 202;
   static const MethodChannel _iosHostChannel =
       MethodChannel('ios_adaptive_context_menu/methods');
 
@@ -332,7 +337,8 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
             enabled: item.enabled,
             value: _FallbackMenuResult.action(item.id),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: _fallbackMenuMinWidth),
+              constraints:
+                  BoxConstraints(minWidth: widget.fallbackMenuMinWidth),
               child: Row(
                 children: [
                   _buildFlutterFallbackMenuIcon(item),
