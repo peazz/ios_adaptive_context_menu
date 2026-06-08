@@ -244,7 +244,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   }
 
   Future<void> _showIosMenu(TapUpDetails details) async {
-    const anchorSize = 44.0;
+    const anchorSize = 28.0;
     final tapPosition = details.globalPosition;
     final params = await _buildCreationParams();
     params['instanceId'] = _instanceId;
