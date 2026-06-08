@@ -9,7 +9,7 @@ An iOS Flutter plugin that shows a native context menu on single tap.
   s.license          = { :type => 'MIT', :file => '../LICENSE' }
   s.author           = 'ios_adaptive_context_menu contributors'
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'ios_adaptive_context_menu/Sources/ios_adaptive_context_menu/**/*.swift'
   s.dependency 'Flutter'
   s.platform = :ios, '14.0'
   s.swift_version = '5.0'
