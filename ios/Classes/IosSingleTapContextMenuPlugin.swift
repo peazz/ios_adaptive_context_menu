@@ -68,7 +68,7 @@ public final class IosSingleTapContextMenuPlugin: NSObject, FlutterPlugin {
     button.backgroundColor = .clear
     button.showsTouchWhenHighlighted = false
     button.adjustsImageWhenHighlighted = false
-    button.showsMenuAsPrimaryAction = false
+    button.showsMenuAsPrimaryAction = true
     
     if #available(iOS 16.0, *) {
       button.preferredMenuElementOrder = .fixed
