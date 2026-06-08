@@ -314,7 +314,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     List<IosContextMenuItem> items,
   ) {
     final entries = <PopupMenuEntry<_FallbackMenuResult>>[];
-    final dividerColor = Theme.of(context).dividerColor.withValues(alpha: 0.2);
+    final dividerColor = Theme.of(context).dividerColor;
     final flatItems = _flattenForFallback(items);
 
     void addDividerIfNeeded(IosContextMenuDivider divider) {
@@ -577,19 +577,20 @@ class _FallbackPopupDivider extends PopupMenuEntry<_FallbackMenuResult> {
 class _FallbackPopupDividerState extends State<_FallbackPopupDivider> {
   @override
   Widget build(BuildContext context) {
-    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-    final strokeWidth = 1 / pixelRatio;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
-      child: Align(
-        alignment: Alignment.center,
-        child: SizedBox(
-          height: strokeWidth,
-          width: double.infinity,
-          child: CustomPaint(
-            painter: _FallbackDividerPainter(
-              color: widget.color,
-              strokeWidth: strokeWidth,
+    return SizedBox(
+      height: widget.height,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+        child: Align(
+          alignment: Alignment.center,
+          child: SizedBox(
+            height: widget.thickness,
+            width: double.infinity,
+            child: CustomPaint(
+              painter: _FallbackDividerPainter(
+                color: widget.color,
+                strokeWidth: widget.thickness,
+              ),
             ),
           ),
         ),
