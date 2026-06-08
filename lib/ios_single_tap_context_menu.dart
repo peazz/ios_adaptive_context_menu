@@ -245,12 +245,13 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
 
   Future<void> _showIosMenu(TapUpDetails details) async {
     const anchorSize = 44.0;
+    const anchorYOffset = 8.0;
     final tapPosition = details.globalPosition;
     final params = await _buildCreationParams();
     params['instanceId'] = _instanceId;
     params['themeBrightness'] = Theme.of(context).brightness.name;
     params['x'] = tapPosition.dx - anchorSize / 2;
-    params['y'] = tapPosition.dy - anchorSize / 2;
+    params['y'] = tapPosition.dy + anchorYOffset;
     params['width'] = anchorSize;
     params['height'] = anchorSize;
 
