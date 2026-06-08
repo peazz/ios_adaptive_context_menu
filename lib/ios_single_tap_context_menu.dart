@@ -190,6 +190,7 @@ class IosSingleTapContextMenu extends StatefulWidget {
 
 class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   static const int _targetIconPx = 36;
+  static const Color _fallbackDestructiveColor = Colors.red;
   static const MethodChannel _iosHostChannel =
       MethodChannel('ios_adaptive_context_menu/methods');
 
@@ -353,7 +354,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
                     child: Text(
                       item.title,
                       style: item.destructive
-                          ? const TextStyle(color: Colors.red)
+                          ? const TextStyle(color: _fallbackDestructiveColor)
                           : null,
                     ),
                   ),
@@ -386,7 +387,11 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
 
   Widget _buildFlutterFallbackMenuIcon(IosContextMenuAction item) {
     if (item.icon != null) {
-      return Icon(item.icon, size: 20);
+      return Icon(
+        item.icon,
+        size: 20,
+        color: item.destructive ? _fallbackDestructiveColor : null,
+      );
     }
 
     final assetPath = item.iconAssetPath;
