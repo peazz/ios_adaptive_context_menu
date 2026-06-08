@@ -69,6 +69,9 @@ public final class IosSingleTapContextMenuPlugin: NSObject, FlutterPlugin {
     button.showsTouchWhenHighlighted = false
     button.adjustsImageWhenHighlighted = false
     button.showsMenuAsPrimaryAction = true
+    if #available(iOS 16.0, *) {
+      button.preferredMenuElementOrder = .fixed
+    }
     button.menu = UIMenu(
       title: "",
       children: groups.map { group in
