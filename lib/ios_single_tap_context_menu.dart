@@ -20,13 +20,21 @@ abstract class IosContextMenuItem {
 @immutable
 class IosContextMenuDivider extends IosContextMenuItem {
   /// Creates a divider item.
-  const IosContextMenuDivider();
+  const IosContextMenuDivider({
+    this.color,
+  });
+
+  /// Divider color used by Flutter fallback menus.
+  ///
+  /// Native iOS menus ignore this and use UIKit's system divider styling.
+  final Color? color;
 
   @override
-  bool operator ==(Object other) => other is IosContextMenuDivider;
+  bool operator ==(Object other) =>
+      other is IosContextMenuDivider && other.color == color;
 
   @override
-  int get hashCode => 0;
+  int get hashCode => color.hashCode;
 }
 
 /// Nested menu entry that opens a child list of items.
@@ -309,13 +317,13 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     final dividerColor = Theme.of(context).dividerColor.withValues(alpha: 0.2);
     final flatItems = _flattenForFallback(items);
 
-    void addDividerIfNeeded() {
+    void addDividerIfNeeded(IosContextMenuDivider divider) {
       if (entries.isEmpty || entries.last is _FallbackPopupDivider) {
         return;
       }
       entries.add(
         _FallbackPopupDivider(
-          color: dividerColor,
+          color: divider.color ?? dividerColor,
           height: 10,
           thickness: 1,
           horizontalPadding: 10,
@@ -325,7 +333,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
 
     for (final item in flatItems) {
       if (item is IosContextMenuDivider) {
-        addDividerIfNeeded();
+        addDividerIfNeeded(item);
         continue;
       }
 
