@@ -74,6 +74,10 @@ public final class IosSingleTapContextMenuPlugin: NSObject, FlutterPlugin {
       button.preferredMenuElementOrder = .fixed
     }
 
+    if #available(iOS 15.0, *) {
+      button.changesSelectionAsPrimaryAction = false
+    }
+
     button.menu = UIMenu(
       title: "",
       children: groups.map { group in
