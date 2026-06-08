@@ -339,6 +339,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
       }
 
       if (item is IosContextMenuAction) {
+        final icon = _buildFlutterFallbackMenuIcon(item);
         entries.add(
           PopupMenuItem<_FallbackMenuResult>(
             enabled: item.enabled,
@@ -348,8 +349,10 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
                   BoxConstraints(minWidth: widget.fallbackMenuMinWidth),
               child: Row(
                 children: [
-                  _buildFlutterFallbackMenuIcon(item),
-                  const SizedBox(width: 12),
+                  if (icon != null) ...[
+                    icon,
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Text(
                       item.title,
@@ -358,6 +361,10 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
                           : null,
                     ),
                   ),
+                  if (item.showTrailingCheckmark) ...[
+                    const SizedBox(width: 12),
+                    const Icon(Icons.check, size: 20),
+                  ],
                 ],
               ),
             ),
@@ -385,7 +392,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
     return result;
   }
 
-  Widget _buildFlutterFallbackMenuIcon(IosContextMenuAction item) {
+  Widget? _buildFlutterFallbackMenuIcon(IosContextMenuAction item) {
     if (item.icon != null) {
       return Icon(
         item.icon,
@@ -403,7 +410,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
       );
     }
 
-    return const SizedBox(width: 20, height: 20);
+    return null;
   }
 
   Future<Map<String, Object?>> _buildCreationParams() async {
