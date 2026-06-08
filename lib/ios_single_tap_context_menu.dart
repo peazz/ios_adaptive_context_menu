@@ -266,12 +266,12 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   Widget _buildFlutterFallbackHost() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: _showFlutterFallbackMenu,
+      onTapUp: _showFlutterFallbackMenu,
       child: widget.child,
     );
   }
 
-  Future<void> _showFlutterFallbackMenu(TapDownDetails details) async {
+  Future<void> _showFlutterFallbackMenu(TapUpDetails details) async {
     final selectedId = await _showFlutterFallbackMenuForItems(
       context: context,
       position: details.globalPosition,
