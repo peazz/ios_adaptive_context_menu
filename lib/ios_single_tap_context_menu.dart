@@ -244,6 +244,8 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   }
 
   Future<void> _showIosMenu(TapUpDetails details) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     const anchorSize = 28.0;
     final tapPosition = details.globalPosition;
     final params = await _buildCreationParams();
@@ -266,6 +268,8 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
   }
 
   Future<void> _showFlutterFallbackMenu(TapUpDetails details) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final selectedId = await _showFlutterFallbackMenuForItems(
       context: context,
       position: details.globalPosition,
