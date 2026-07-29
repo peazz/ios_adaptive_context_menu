@@ -291,6 +291,7 @@ class _IosSingleTapContextMenuState extends State<IosSingleTapContextMenu> {
 
     final selected = await showMenu<_FallbackMenuResult>(
       context: context,
+      requestFocus: false,
       position: RelativeRect.fromRect(
         Rect.fromLTWH(position.dx, position.dy, 1, 1),
         Offset.zero & overlay.size,
